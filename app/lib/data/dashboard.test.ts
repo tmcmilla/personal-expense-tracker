@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Types } from "mongoose";
 
 const {
@@ -34,7 +34,7 @@ vi.mock("@/models/Expense", () => ({
   },
 }));
 
-import { getDashboardSummary, getRecentExpenses } from "./dashboard";
+import { getDashboardSummary, getRecentExpenses, getSpendOverTime } from "./dashboard";
 
 const USER_ID = "507f1f77bcf86cd799439099";
 
@@ -113,6 +113,70 @@ describe("getDashboardSummary", () => {
 
   it("never accepts userId as a parameter — it always comes from verifySession", () => {
     expect(getDashboardSummary).toHaveLength(2);
+  });
+});
+
+describe("getSpendOverTime", () => {
+  beforeEach(() => {
+    verifySessionMock.mockReset().mockResolvedValue({ userId: USER_ID });
+    connectToDatabaseMock.mockReset();
+    aggregateMock.mockReset().mockResolvedValue([]);
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date(Date.UTC(2026, 6, 15)));
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("scopes the aggregate to the caller's userId (cast to ObjectId) and a trailing window start", async () => {
+    await getSpendOverTime(6);
+
+    expect(aggregateMock).toHaveBeenCalledWith([
+      {
+        $match: {
+          userId: new Types.ObjectId(USER_ID),
+          date: { $gte: new Date(Date.UTC(2026, 1, 1)) },
+        },
+      },
+      {
+        $group: {
+          _id: { year: { $year: "$date" }, month: { $month: "$date" } },
+          total: { $sum: "$amount" },
+        },
+      },
+    ]);
+  });
+
+  it("returns one zero-filled point per month, oldest to newest, for a window with no expenses", async () => {
+    const result = await getSpendOverTime(3);
+
+    expect(result).toEqual([
+      { year: 2026, month: 5, label: "May 2026", total: 0 },
+      { year: 2026, month: 6, label: "Jun 2026", total: 0 },
+      { year: 2026, month: 7, label: "Jul 2026", total: 0 },
+    ]);
+  });
+
+  it("fills in real totals for months with expenses and zero-fills the rest", async () => {
+    aggregateMock.mockResolvedValue([
+      { _id: { year: 2026, month: 6 }, total: 55.5 },
+      { _id: { year: 2026, month: 7 }, total: 120 },
+    ]);
+
+    const result = await getSpendOverTime(3);
+
+    expect(result).toEqual([
+      { year: 2026, month: 5, label: "May 2026", total: 0 },
+      { year: 2026, month: 6, label: "Jun 2026", total: 55.5 },
+      { year: 2026, month: 7, label: "Jul 2026", total: 120 },
+    ]);
+  });
+
+  it("never accepts userId as a parameter — it always comes from verifySession", () => {
+    // `monthsBack` has a default value, so it doesn't count toward
+    // Function.length — this only has an implicit `userId` param to guard against.
+    expect(getSpendOverTime).toHaveLength(0);
   });
 });
 

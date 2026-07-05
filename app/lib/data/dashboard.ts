@@ -22,6 +22,19 @@ export type DashboardSummaryDTO = {
   byCategory: CategoryBreakdownDTO[];
 };
 
+export type SpendOverTimePointDTO = {
+  year: number;
+  month: number;
+  label: string;
+  total: number;
+};
+
+const MONTH_LABEL_FORMATTER = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
 export async function getDashboardSummary(
   year: number,
   month: number,
@@ -80,6 +93,58 @@ export async function getDashboardSummary(
     averagePerTransaction: transactionCount > 0 ? totalAmount / transactionCount : 0,
     byCategory,
   };
+}
+
+export async function getSpendOverTime(
+  monthsBack = 6,
+): Promise<SpendOverTimePointDTO[]> {
+  const { userId } = await verifySession();
+  await connectToDatabase();
+
+  const now = new Date();
+  // Window start is the first day of the month `monthsBack - 1` months ago,
+  // so the trailing window (inclusive of the current month) has exactly
+  // `monthsBack` entries.
+  const windowStart = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (monthsBack - 1), 1),
+  );
+
+  const rows = await Expense.aggregate<{
+    _id: { year: number; month: number };
+    total: number;
+  }>([
+    {
+      $match: {
+        userId: new Types.ObjectId(userId),
+        date: { $gte: windowStart },
+      },
+    },
+    {
+      $group: {
+        _id: { year: { $year: "$date" }, month: { $month: "$date" } },
+        total: { $sum: "$amount" },
+      },
+    },
+  ]);
+
+  const totalByKey = new Map(
+    rows.map((row) => [`${row._id.year}-${row._id.month}`, row.total]),
+  );
+
+  const points: SpendOverTimePointDTO[] = [];
+  for (let i = monthsBack - 1; i >= 0; i--) {
+    const date = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    const year = date.getUTCFullYear();
+    const month = date.getUTCMonth() + 1;
+    points.push({
+      year,
+      month,
+      label: MONTH_LABEL_FORMATTER.format(date),
+      total: totalByKey.get(`${year}-${month}`) ?? 0,
+    });
+  }
+
+  return points;
 }
 
 export async function getRecentExpenses(limit = 5): Promise<ExpenseDTO[]> {

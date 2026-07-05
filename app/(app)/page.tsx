@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
 import { Card, CardBody } from "@heroui/react";
-import { getDashboardSummary, getRecentExpenses } from "@/app/lib/data/dashboard";
+import {
+  getDashboardSummary,
+  getRecentExpenses,
+  getSpendOverTime,
+} from "@/app/lib/data/dashboard";
 import { getCategories } from "@/app/lib/data/categories";
 import PeriodSelect from "./PeriodSelect";
 import DashboardMetrics from "./DashboardMetrics";
 import CategoryBreakdown from "./CategoryBreakdown";
 import RecentExpenses from "./RecentExpenses";
+import SpendOverTimeCard from "./SpendOverTimeCard";
 import LinkButton from "./LinkButton";
 
 export const metadata: Metadata = {
@@ -41,10 +46,11 @@ export default async function DashboardPage({
     typeof periodParam === "string" ? periodParam : undefined,
   );
 
-  const [summary, recentExpenses, categories] = await Promise.all([
+  const [summary, recentExpenses, categories, spendOverTime] = await Promise.all([
     getDashboardSummary(year, month),
     getRecentExpenses(),
     getCategories(),
+    getSpendOverTime(),
   ]);
 
   const isEmptyMonth = summary.transactionCount === 0;
@@ -55,6 +61,8 @@ export default async function DashboardPage({
         <h1 className="text-2xl font-semibold">Dashboard</h1>
         <PeriodSelect year={year} month={month} />
       </div>
+
+      <SpendOverTimeCard points={spendOverTime} />
 
       {isEmptyMonth ? (
         <Card>

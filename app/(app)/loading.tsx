@@ -7,6 +7,11 @@ export default function DashboardLoading() {
         <Skeleton className="h-8 w-40 rounded-lg" />
         <Skeleton className="h-10 w-48 rounded-lg" />
       </div>
+      <Card>
+        <CardBody>
+          <Skeleton className="h-64 w-full rounded-lg sm:h-72 lg:h-80" />
+        </CardBody>
+      </Card>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
           <Card key={index}>
