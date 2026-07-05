@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@heroui/react": "^2.8.10",
+    "@internationalized/date": "3.12.0",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.23.0",
@@ -21,7 +22,8 @@
     "next-auth": "^4.24.14",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "server-only": "^0.0.1"
+    "server-only": "^0.0.1",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

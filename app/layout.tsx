@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { HeroUIProvider } from "@heroui/react";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -37,7 +37,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
       <body className="min-h-full flex flex-col">
-        <HeroUIProvider>{children}</HeroUIProvider>
+        <HeroUIProvider>
+          <ToastProvider />
+          {children}
+        </HeroUIProvider>
       </body>
     </html>
   );
