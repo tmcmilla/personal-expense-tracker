@@ -11,7 +11,7 @@ import {
   ListboxItem,
 } from "@heroui/react";
 import { MoreVertical } from "lucide-react";
-import { categoryColor } from "./categoryColor";
+import { categoryColor } from "../categoryColor";
 import type { ExpenseDTO } from "@/app/lib/data/expenses";
 import type { CategoryDTO } from "@/app/lib/data/categories";
 

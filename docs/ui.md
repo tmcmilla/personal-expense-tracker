@@ -8,8 +8,11 @@ replace a HeroUI component.
 
 Domain context this UI is designed against (see `models/`): a `User` tracks
 `Expense` records (amount, category, date, description), grouped under
-`ExpenseCategory` (system defaults + user-created), with precomputed
-`MonthlySummary` documents (total + per-category breakdown) driving the dashboard.
+`ExpenseCategory` (system defaults + user-created). The dashboard's totals
+and per-category breakdown are computed live from `Expense` via aggregation,
+scoped to the selected month — `models/MonthlySummary.ts` exists but nothing
+currently writes to it, so it isn't the dashboard's data source (see
+`app/lib/data/dashboard.ts`).
 
 ## 1. Principles
 
@@ -142,7 +145,9 @@ for field-level issues.
 
 ### 5.2 Dashboard — `/`
 
-Default landing page after login. Built from `MonthlySummary`.
+Default landing page after login. Built from a live aggregation over
+`Expense`, scoped to the selected month (see `app/lib/data/dashboard.ts`),
+not the precomputed `MonthlySummary` collection.
 
 - Page header: current month/year as text, with a `Select` (or `Tabs` if the
   range is small, e.g. last 6 months) to switch the summary period.
