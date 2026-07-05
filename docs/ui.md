@@ -20,6 +20,13 @@ currently writes to it, so it isn't the dashboard's data source (see
   charts-adjacent breakdowns, feedback — maps to a documented HeroUI component.
   If a screen seems to need something HeroUI doesn't provide, compose it from
   existing primitives (see §6) rather than hand-rolling a component.
+- **Charts are the one named exception.** For data HeroUI's own primitives
+  can't express — multi-series or time-series views (e.g. spend over time) —
+  use `react-chartjs-2`/Chart.js per `docs/charts.md`, which also specifies
+  theming the chart from this doc's HeroUI colors so it still reads as one
+  system. This doesn't apply to the existing dashboard category breakdown
+  (§5.2), which is a single-value proportional display and stays on HeroUI
+  `Progress`.
 - **One `HeroUIProvider`, one theme.** All color, radius, and spacing decisions are
   expressed through the HeroUI/Tailwind theme config (`hero.ts` plugin config), not
   inline styles or one-off classes. Light and dark themes both ship at launch.
@@ -44,7 +51,11 @@ currently writes to it, so it isn't the dashboard's data source (see
 - Border radius: use HeroUI's `lg` radius scale consistently across `Card`,
   `Input`, `Modal`, and `Button` so the whole app reads as one shape language.
 - Respect system color-scheme by default; expose an explicit override via a
-  `Switch` in Settings (§5.6) rather than only relying on OS detection.
+  `Switch` in the header `Navbar` (`ThemeSwitch`, §3 — desktop right-aligned
+  `NavbarContent`, mobile `NavbarMenu`) rather than only relying on OS
+  detection. The override is stored in `localStorage`
+  (`expense-tracker:theme:v1`) and re-applied before hydration so it never
+  flashes the other theme on load.
 
 ### Typography
 
@@ -156,10 +167,11 @@ not the precomputed `MonthlySummary` collection.
   Each card body pairs a label with the value as HeroUI's large text scale step.
 - Category breakdown: a `Card` containing, per category, a `Progress` bar
   (`value` = category total ÷ month total, `color` mapped from category, label
-  = category name + formatted amount). This replaces a bespoke chart library
-  entirely — `Progress`/`CircularProgress` are the only HeroUI primitives
-  suited to proportional display, and stacking them reads as a breakdown
-  without introducing non-HeroUI charting.
+  = category name + formatted amount). `Progress`/`CircularProgress` remain
+  the pattern for this proportional breakdown specifically — stacking them
+  reads as a breakdown without needing a chart. A future dashboard section
+  needing a genuinely multi-series or time-series view (e.g. spend over
+  time) uses a chart per `docs/charts.md` instead (see §1, §6).
 - "Recent expenses": the 5 most recent `Expense` rows reusing the same row
   presentation as §5.3, inside a `Card`, with a `Button` (`variant="light"`)
   linking to the full Expenses page.
@@ -224,8 +236,9 @@ not the precomputed `MonthlySummary` collection.
 - Profile tab: `Card` with `Input`s for Name and Email (Email read-only
   display unless an explicit "Change email" flow is in scope), `Button` to
   save, separate `Card` for password change (current/new/confirm `Input`s).
-- Preferences tab: `Switch` for light/dark theme override, `Select` for
-  currency/date-format display preferences if introduced later.
+- Preferences tab: `Select` for currency/date-format display preferences if
+  introduced later. The light/dark theme override lives in the header
+  `Navbar` (§2), not duplicated here.
 - Danger zone: a visually distinct `Card` (`className` limited to spacing
   only) containing a `Button` (`color="danger"`, `variant="flat"`) "Log out"
   and, if account deletion is in scope, "Delete account" behind a confirmation
@@ -233,17 +246,21 @@ not the precomputed `MonthlySummary` collection.
 
 ## 6. Composing beyond HeroUI's primitives
 
-Two patterns above go beyond a single component and are explicitly composition,
-not custom UI:
+Three patterns above go beyond a single component and are explicitly named
+exceptions, not general license for custom UI:
 
 - **Category breakdown (§5.2)** — stacked `Progress` bars. No custom chart.
 - **Responsive table→list (§5.3, §5.5)** — the same HeroUI `Table` semantics
   re-expressed as `Listbox` at narrow widths, driven by a Tailwind
   responsive utility toggling which one renders. Both are unmodified HeroUI
   components; only the choice of which one is visible changes per breakpoint.
+- **Charts (§1)** — `react-chartjs-2`/Chart.js, per `docs/charts.md`, for
+  multi-series/time-series views HeroUI has no primitive for. Themed from
+  this doc's HeroUI colors so it doesn't read as a bolted-on library.
 
-If a future requirement can't be met by composing existing HeroUI components
-this way, that's a signal to revisit this doc rather than reach for custom CSS.
+If a future requirement can't be met by one of these three exceptions or by
+composing existing HeroUI components, that's a signal to revisit this doc
+rather than reach for custom CSS.
 
 ## 7. Accessibility checklist
 
@@ -271,6 +288,8 @@ this way, that's a signal to revisit this doc rather than reach for custom CSS.
 
 - No custom Tailwind component classes (`.btn`, `.card`, etc.) — only HeroUI
   components and their documented props.
-- No third-party chart, table, or form libraries.
+- No third-party table or form libraries. Charts are the sole third-party-
+  library exception (§1, §6), scoped exactly to what `docs/charts.md`
+  specifies — this doesn't open the door to other non-HeroUI UI libraries.
 - No bespoke design tokens outside the HeroUI theme configuration.
 - No animation/transition libraries beyond what HeroUI ships with.

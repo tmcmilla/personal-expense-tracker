@@ -17,11 +17,14 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Keyed off the same .dark class HeroUI's own colors use (see the `dark`
+   custom variant above) — not `prefers-color-scheme` — so this always
+   agrees with ThemeSwitch's explicit override (docs/ui.md §2), not just
+   the OS setting. app/layout.tsx's pre-hydration script resolves system
+   preference into this class before first paint. */
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {

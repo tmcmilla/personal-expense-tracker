@@ -18,6 +18,7 @@ import {
   NavbarMenuItem,
   NavbarMenuToggle,
 } from "@heroui/react";
+import ThemeSwitch from "./ThemeSwitch";
 
 type NavbarProps = {
   user: {
@@ -64,6 +65,9 @@ export default function Navbar({ user }: NavbarProps) {
       </NavbarContent>
 
       <NavbarContent justify="end">
+        <NavbarItem className="hidden lg:flex">
+          <ThemeSwitch />
+        </NavbarItem>
         <div className="hidden lg:flex">
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
@@ -94,6 +98,11 @@ export default function Navbar({ user }: NavbarProps) {
       </NavbarContent>
 
       <NavbarMenu>
+        <NavbarMenuItem className="flex items-center justify-between">
+          <span>Dark mode</span>
+          <ThemeSwitch />
+        </NavbarMenuItem>
+        <Divider className="my-2" />
         <NavbarMenuItem>
           <Link href="/" className="w-full" onPress={() => setIsMenuOpen(false)}>
             Dashboard
