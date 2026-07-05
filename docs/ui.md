@@ -199,7 +199,7 @@ Default landing page after login. Built from `MonthlySummary`.
 - On validation failure, offending fields show `isInvalid` + `errorMessage`
   inline; the modal does not close and focus moves to the first invalid field.
 
-### 5.5 Categories — `/categories`
+### 5.5 Categories — `/expenses/categories`
 
 - `Table` (or `Listbox` below `sm`, same pattern as §5.3) listing categories:
   Name, Type (`Chip` — "Default" vs "Custom"), Actions.

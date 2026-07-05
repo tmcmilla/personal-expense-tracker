@@ -58,6 +58,9 @@ export default function Navbar({ user }: NavbarProps) {
         <NavbarItem>
           <Link href="/expenses">Expenses</Link>
         </NavbarItem>
+        <NavbarItem>
+          <Link href="/expenses/categories">Categories</Link>
+        </NavbarItem>
       </NavbarContent>
 
       <NavbarContent justify="end">
@@ -103,6 +106,15 @@ export default function Navbar({ user }: NavbarProps) {
             onPress={() => setIsMenuOpen(false)}
           >
             Expenses
+          </Link>
+        </NavbarMenuItem>
+        <NavbarMenuItem>
+          <Link
+            href="/expenses/categories"
+            className="w-full"
+            onPress={() => setIsMenuOpen(false)}
+          >
+            Categories
           </Link>
         </NavbarMenuItem>
         <Divider className="my-2" />
