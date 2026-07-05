@@ -36,7 +36,7 @@ endpoint. See §4.
 | `/signup` | `app/(auth)/signup/page.tsx` | Public (unauthenticated only) | Create account |
 | `/` | `app/(app)/page.tsx` | Protected | Dashboard (current month summary) |
 | `/expenses` | `app/(app)/expenses/page.tsx` | Protected | Expense list, filters, add/edit modal |
-| `/categories` | `app/(app)/categories/page.tsx` | Protected | Category list, create/delete |
+| `/expenses/categories` | `app/(app)/expenses/categories/page.tsx` | Protected | Category list, create/delete |
 | `/settings` | `app/(app)/settings/page.tsx` | Protected | Profile, preferences, log out |
 | `/api/auth/[...nextauth]` | `app/api/auth/[...nextauth]/route.ts` | Public (NextAuth's own surface) | Sign-in/sign-out/session endpoints — see `docs/auth.md` §3 |
 
@@ -73,8 +73,10 @@ app/
       page.tsx
       loading.tsx
       error.tsx
-    categories/
-      page.tsx
+      categories/
+        page.tsx
+        loading.tsx
+        error.tsx
     settings/
       page.tsx
 
@@ -190,7 +192,7 @@ one just to give a modal's content a route.
 - Route segments are lowercase, kebab-case if multi-word (none currently
   are — all top-level resources happen to be single words).
 - Collection routes use the plural resource name (`/expenses`,
-  `/categories`), matching the Mongoose model names (`Expense`,
+  `/expenses/categories`), matching the Mongoose model names (`Expense`,
   `ExpenseCategory`) minus casing/pluralization noise.
 - Route groups (`(auth)`, `(app)`) are named for their purpose (auth vs. the
   authenticated app shell), not for arbitrary teams or features — with only
