@@ -42,5 +42,6 @@ Current `/docs` files:
 - `docs/routing.md` — App Router conventions for this app: route map, folder/route-group structure, protected-by-default routing, naming based on resources/features.
 - `docs/errors-and-validation.md` — all user-facing errors render in a HeroUI `Alert` (never raw/technical details); all input validation is defined once with Zod and enforced server-side.
 - `docs/data-mutations.md` — all data mutations go through Server Actions (no extra API routes, no client-side mutation logic), called with strongly-typed Zod-validated inputs rather than raw `FormData`.
+- `docs/data-fetching.md` — all data reads happen in Server Components via a per-resource Data Access Layer (`app/lib/data/`), never in Client Components or a dedicated API route, with `verifySession()`-scoped, per-user authorization on every query.
 - `docs/security.md` — secrets, environment variables, and deployment hygiene: never hardcode credentials, never commit env files, never expose secrets client-side or in logs.
 - `docs/best-practices.md` — React/Next.js performance and code-quality conventions, adapted from Vercel's `react-best-practices` guide.
